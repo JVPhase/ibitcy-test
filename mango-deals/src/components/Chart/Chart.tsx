@@ -85,7 +85,7 @@ function Chart(props: ChartProps) {
         }
       });
     }
-  }, [ctx, props, height, width, numXTicks, numYTicks]);
+  }, [ctx, props, height, width, numXTicks, numYTicks, canvasWidth]);
 
   return (
     <canvas className="Chart" ref={chartRef} width={canvasWidth} height={285}>
