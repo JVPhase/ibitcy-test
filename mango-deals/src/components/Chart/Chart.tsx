@@ -5,17 +5,21 @@ type ChartProps = {
   unitsPerTickX: number;
   unitsPerTickY: number;
   data?: {
-    date: number;
+    date: Date;
     value: number;
+    id: number;
   }[];
+  highlight: number;
 };
 
 function Chart(props: ChartProps) {
   const chartRef = useRef<HTMLCanvasElement>(null);
   const [ctx, setCtx] = useState<CanvasRenderingContext2D | null>();
+  const [firstRender, setFirstRender] = useState(true);
   const [rangeY, setRangeY] = useState<number>(0);
   const [data, setData] = useState<
     {
+      id: number;
       date: number;
       value: number;
     }[]
@@ -33,7 +37,8 @@ function Chart(props: ChartProps) {
       const arr = props.data
         .map((item) => {
           return {
-            date: item.date / 1000,
+            id: item.id,
+            date: new Date(item.date).getTime() / 1000,
             value: item.value,
           };
         })
@@ -42,7 +47,6 @@ function Chart(props: ChartProps) {
     }
   }, [props.data]);
   useEffect(() => {
-    let first = true;
     let drag = false;
     let touchStart = 0;
     let offsetX = 0;
@@ -62,7 +66,7 @@ function Chart(props: ChartProps) {
     }
     const draw = () => {
       if (
-        first &&
+        firstRender &&
         data.length &&
         getLimit('max', 'date') - getLimit('min', 'date') >
           document.body.clientWidth
@@ -152,7 +156,7 @@ function Chart(props: ChartProps) {
         }
         context.stroke();
         for (let n = 0; n < data.length; n++) {
-          if (n === hoverEl) {
+          if (n === hoverEl || n === data.length - 1 - props.highlight) {
             context.beginPath();
             context.lineWidth = 1;
             context.strokeStyle = '#346D8D';
@@ -207,7 +211,7 @@ function Chart(props: ChartProps) {
         }
       }
       context.restore();
-      first = false;
+      setFirstRender(false);
     };
     if (ctx) {
       window.requestAnimationFrame(draw);
@@ -270,7 +274,8 @@ function Chart(props: ChartProps) {
         chartRef.current?.removeEventListener('touchmove', dragMove);
       };
     }
-  }, [width, numXTicks, data, window.innerWidth]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [width, numXTicks, data, window.innerWidth, props.highlight]);
 
   return (
     <canvas className="Chart" ref={chartRef} width={canvasWidth} height={285}>

@@ -2,6 +2,11 @@
   font-weight: 700;
 }
 
+.TableBodyRow.transparent {
+  background-color: transparent !important;
+  border-bottom: none;
+}
+
 .TableBodyCell.right {
   text-align: right;
 }
