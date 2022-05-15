@@ -11,7 +11,7 @@ const db = new Low(adapter);
 await db.read();
 let app = express();
 const srcPath = __dirname;
-app.use(express.static(path.join(srcPath, 'dist')));
+app.use(express.static(path.join(srcPath, 'build')));
 let urlencodedParser = bodyParser.urlencoded({ extended: true });
 app.use(bodyParser.json());
 
@@ -51,7 +51,7 @@ app.delete('/delete/:id', urlencodedParser, (req, res) => {
 });
 
 app.get('/', (req, res) => {
-  res.sendFile(path.join(srcPath, 'dist', 'index.html'));
+  res.sendFile(path.join(srcPath, 'build', 'index.html'));
 });
 
 var listener = app.listen(8080, function () {
