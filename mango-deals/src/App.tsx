@@ -20,6 +20,7 @@ function App() {
   const [all, setAll] = useState(false);
   const [highlight, setHighlight] = useState<number | null>(null);
   const [dialogOpened, setDialogOpened] = useState(false);
+  const [alertOpened, setAlertOpened] = useState(false);
   const [newDealValue, setNewDealValue] = useState(0);
   const [newDealDate, setNewDealDate] = useState<Date>(new Date());
   const [data, setData] = useState<{ date: Date; value: number; id: number }[]>(
@@ -68,7 +69,11 @@ function App() {
       body: JSON.stringify(newDeal),
     }).then((res) => {
       fetchDeals(true);
+      setAlertOpened(true);
       setDialogOpened(false);
+      setTimeout(() => {
+        setAlertOpened(false);
+      }, 3000);
     });
   };
   const checkAll = (nextPage: number) => {
@@ -194,7 +199,15 @@ function App() {
       ) : (
         ''
       )}
-      <Alert />
+      {alertOpened ? (
+        <Alert
+          onClose={() => {
+            setAlertOpened(false);
+          }}
+        />
+      ) : (
+        ''
+      )}
     </div>
   );
 }

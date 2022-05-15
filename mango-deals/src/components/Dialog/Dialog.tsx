@@ -7,14 +7,14 @@ import close from '../../assets/close.svg';
 type DialogProps = {
   children?: React.ReactNode;
   title?: string;
-  onClose?: (e: React.MouseEvent<HTMLButtonElement>) => void;
+  onClose?: (e: React.MouseEvent<HTMLButtonElement | HTMLDivElement>) => void;
   onProceed?: (e: React.MouseEvent<HTMLButtonElement>) => void;
 };
 
 function Dialog(props: DialogProps) {
   const { children, title = '', onClose, onProceed } = props;
   return (
-    <Modal>
+    <Modal closedByOverlay={onClose}>
       <div className="DialogHeader">
         <div className="DialogTitle">{title}</div>
         <Button className="icon" onClick={onClose}>
