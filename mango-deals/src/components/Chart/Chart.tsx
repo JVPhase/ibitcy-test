@@ -131,6 +131,7 @@ function Chart(props: ChartProps) {
           hoverEl = -1;
         });
         chartRef.current?.removeEventListener('mousemove', dragMove);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
         chartRef.current?.removeEventListener('touchmove', dragMove);
       };
     }
