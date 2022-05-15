@@ -18,17 +18,17 @@ import trash from './assets/trash.svg';
 function App() {
   const [page, setPage] = useState(0);
   const [all, setAll] = useState(false);
-  const [highlight, setHighlight] = useState(-1);
+  const [highlight, setHighlight] = useState<number | null>(null);
   const [dialogOpened, setDialogOpened] = useState(false);
   const [newDealValue, setNewDealValue] = useState(0);
-  const [newDealDate, setNewDealDate] = useState(Date.now());
+  const [newDealDate, setNewDealDate] = useState<Date>(new Date());
   const [data, setData] = useState<{ date: Date; value: number; id: number }[]>(
     []
   );
   useEffect(() => {
     fetchDeals();
     const updateTime = () => {
-      setNewDealDate(Date.now());
+      setNewDealDate(new Date());
     };
     const timerId = setInterval(updateTime, 1000);
     return () => {
@@ -36,16 +36,40 @@ function App() {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  const fetchDeals = () => {
-    fetch(`/deals/${page}`)
+  const fetchDeals = (firstPage = false) => {
+    fetch(`/deals/${firstPage ? 0 : page}`)
       .then((res) => {
         return res.json();
       })
       .then((fetchedData) => {
-        setData([...data, ...fetchedData]);
-        checkAll(page + 1);
-        setPage(page + 1);
+        setData(firstPage ? fetchedData : [...data, ...fetchedData]);
+        if (data.length || (!data.length && fetchedData.length)) {
+          setNewDealValue(
+            (!data.length && fetchedData.length) || firstPage
+              ? fetchedData[0].value
+              : data[0].value
+          );
+        }
+        checkAll((firstPage ? 0 : page) + 1);
+        setPage((firstPage ? 0 : page) + 1);
       });
+  };
+  const createNewDeal = () => {
+    const newDeal = {
+      id: Math.round(newDealDate.getTime() / 100),
+      date: newDealDate,
+      value: newDealValue,
+    };
+    fetch('/new', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(newDeal),
+    }).then((res) => {
+      fetchDeals(true);
+      setDialogOpened(false);
+    });
   };
   const checkAll = (nextPage: number) => {
     fetch(`/deals/${nextPage}`)
@@ -56,10 +80,12 @@ function App() {
         setAll(!fetchedData.length);
       });
   };
-  const removeItem = (i: number) => {
-    let arr = [...data];
-    arr.splice(i, 1);
-    setData(arr);
+  const removeItem = (id: number) => {
+    fetch(`/delete/${id}`, {
+      method: 'DELETE',
+    }).then((res) => {
+      fetchDeals(true);
+    });
   };
   const formatTime = (digits: number) => {
     return (digits < 10 ? '0' : '') + digits;
@@ -95,16 +121,13 @@ function App() {
           setDialogOpened(true);
         }}
       />
-      {data.length ? (
-        <Chart
-          unitsPerTickX={20}
-          unitsPerTickY={30}
-          data={data}
-          highlight={highlight}
-        />
-      ) : (
-        ''
-      )}
+      <Chart
+        unitsPerTickX={20}
+        unitsPerTickY={30}
+        data={data}
+        highlight={highlight}
+        onHover={(index) => setHighlight(index)}
+      />
       <Table>
         <TableHead>
           <TableHeadRow>
@@ -114,10 +137,11 @@ function App() {
           </TableHeadRow>
         </TableHead>
         <TableBody>
-          {data.map((deal, i) => {
+          {data.map((deal) => {
             return (
               <TableBodyRow
-                index={i}
+                className={deal.id === highlight ? 'hovered' : ''}
+                index={deal.id}
                 key={deal.id}
                 onHover={(e) => {
                   setHighlight(e);
@@ -126,7 +150,7 @@ function App() {
                 <TableBodyCell className="bold">{deal.value}</TableBodyCell>
                 <TableBodyCell>{getDate(deal.date)}</TableBodyCell>
                 <TableBodyCell className="right">
-                  <Button className="icon" onClick={() => removeItem(i)}>
+                  <Button className="icon" onClick={() => removeItem(deal.id)}>
                     <img src={trash} className="delete" alt="delete" />
                   </Button>
                 </TableBodyCell>
@@ -150,7 +174,7 @@ function App() {
         <Dialog
           title="Make a New Deal"
           onClose={() => setDialogOpened(false)}
-          onProceed={() => setDialogOpened(false)}
+          onProceed={() => createNewDeal()}
         >
           <Input
             value={getDate(newDealDate, true)}
