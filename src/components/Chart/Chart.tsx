@@ -33,7 +33,6 @@ function Chart(props: ChartProps) {
     document.body.clientWidth
   );
   const [height, setHeight] = useState<number>(0);
-  const [object, setObject] = useState<any>({});
 
   useEffect(() => {
     if (props.data) {
@@ -82,7 +81,6 @@ function Chart(props: ChartProps) {
         if (e.targetTouches && e.targetTouches.length) {
           touchStart = e.touches[0].pageX;
         }
-        setObject({ name: 'START', touchStart, e });
         e.preventDefault();
         drag = true;
       });
@@ -107,7 +105,6 @@ function Chart(props: ChartProps) {
           touchStart = e.targetTouches[0].pageX;
         }
         e.preventDefault();
-        setObject({ name: 'MOVE', touchStart, e });
         if (drag) {
           setOffsetXData(offsetX + e.movementX);
           offsetX += e.movementX;
@@ -323,12 +320,9 @@ function Chart(props: ChartProps) {
   };
 
   return (
-    <div>
-      <canvas className="Chart" ref={chartRef} width={canvasWidth} height={285}>
-        Canvas not supported.
-      </canvas>
-      {JSON.stringify(object)}
-    </div>
+    <canvas className="Chart" ref={chartRef} width={canvasWidth} height={285}>
+      Canvas not supported.
+    </canvas>
   );
 }
 
