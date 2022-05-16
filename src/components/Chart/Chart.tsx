@@ -61,6 +61,18 @@ function Chart(props: ChartProps) {
     let touchStart = 0;
     let hoverEl = -1;
     let offsetX = 0;
+    const normalizeTouchEvent = (event: any) => {
+      // if (!event.touches) {
+      //   event.touches = event.originalEvent.touches;
+      // }
+      // if (!event.pageX) {
+      //   event.pageX = event.originalEvent.pageX;
+      // }
+      // if (!event.pageY) {
+      //   event.pageY = event.originalEvent.pageY;
+      // }
+      return event;
+    };
     if (chartRef.current) {
       setCtx(chartRef.current.getContext('2d'));
     }
@@ -72,6 +84,8 @@ function Chart(props: ChartProps) {
       });
       chartRef.current?.addEventListener('mousedown', () => (drag = true));
       chartRef.current?.addEventListener('touchstart', (e) => {
+        e = normalizeTouchEvent(e);
+        e.preventDefault();
         touchStart = e.touches[0].pageX;
         drag = true;
       });
@@ -82,6 +96,8 @@ function Chart(props: ChartProps) {
         hoverEl = -1;
       });
       const dragMove = (e: any) => {
+        e = normalizeTouchEvent(e);
+        e.preventDefault();
         if (e.type === 'touchmove') {
           e.movementX = e.touches[0].pageX - touchStart;
           e.pageX = e.touches[0].pageX;
