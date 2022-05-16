@@ -9,7 +9,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const file = join(__dirname, 'db.json');
 const adapter = new JSONFile(file);
 const db = new Low(adapter);
-await db.read();
+db.read();
 const app = express();
 const router = express.Router();
 const srcPath = __dirname;
