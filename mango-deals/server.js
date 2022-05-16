@@ -1,5 +1,4 @@
 import express from 'express';
-import serverless from 'serverless-http';
 import { Low, JSONFile } from 'lowdb';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
@@ -10,8 +9,7 @@ const file = join(__dirname, 'db.json');
 const adapter = new JSONFile(file);
 const db = new Low(adapter);
 await db.read();
-const app = express();
-const router = express.Router();
+let app = express();
 const srcPath = __dirname;
 app.use(express.static(path.join(srcPath, 'build')));
 let urlencodedParser = bodyParser.urlencoded({ extended: true });
@@ -29,19 +27,19 @@ defaultDeals.forEach((deal) => {
   db.write();
 });
 
-router.get('/deals/:page', (req, res) => {
+app.get('/deals/:page', (req, res) => {
   const deals = [...db.data.deals].reverse();
   const filtered = deals.splice(req.params.page * 10, 10);
   res.send(filtered);
 });
 
-router.post('/new', urlencodedParser, (req, res) => {
+app.post('/new', urlencodedParser, (req, res) => {
   db.data.deals.push(req.body);
   db.write();
   res.sendStatus(200);
 });
 
-router.delete('/delete/:id', urlencodedParser, (req, res) => {
+app.delete('/delete/:id', urlencodedParser, (req, res) => {
   for (let i = 0; i < db.data.deals.length; i++) {
     if (db.data.deals[i].id === +req.params.id) {
       db.data.deals.splice(i, 1);
@@ -52,10 +50,12 @@ router.delete('/delete/:id', urlencodedParser, (req, res) => {
   res.sendStatus(200);
 });
 
-router.get('/', (req, res) => {
+app.get('/', (req, res) => {
   res.sendFile(path.join(srcPath, 'build', 'index.html'));
 });
 
-app.use('/.netlify/functions/server', router);
+// const listener = app.listen(8080, function () {
+//   console.log('Listening on port ' + listener.address().port);
+// });
 
-export const handler = serverless(app);
+export default app;
