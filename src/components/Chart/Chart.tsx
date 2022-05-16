@@ -93,7 +93,6 @@ function Chart(props: ChartProps) {
         hoverEl = -1;
       });
       const dragMove = (e: any) => {
-        e.preventDefault();
         if (e.touches && e.touches.length) {
           e.movementX = e.touches[0].pageX - touchStart;
           e.pageX = e.touches[0].pageX;
@@ -107,6 +106,7 @@ function Chart(props: ChartProps) {
           e.pageX = e.targetTouches[0].pageX;
           touchStart = e.targetTouches[0].pageX;
         }
+        e.preventDefault();
         setObject({ name: 'MOVE', touchStart, e });
         if (drag) {
           setOffsetXData(offsetX + e.movementX);
