@@ -54,6 +54,6 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(srcPath, 'build', 'index.html'));
 });
 
-const listener = app.listen(8080, function () {
+const listener = app.listen(3000, function () {
   console.log('Listening on port ' + listener.address().port);
 });
