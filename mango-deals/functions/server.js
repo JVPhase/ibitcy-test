@@ -13,7 +13,7 @@ db.read();
 const app = express();
 const router = express.Router();
 const srcPath = __dirname;
-app.use(express.static(path.join(srcPath, 'build')));
+app.use(express.static(path.join(srcPath, '../build')));
 let urlencodedParser = bodyParser.urlencoded({ extended: true });
 app.use(bodyParser.json());
 
@@ -53,7 +53,7 @@ router.delete('/delete/:id', urlencodedParser, (req, res) => {
 });
 
 router.get('/', (req, res) => {
-  res.sendFile(path.join(srcPath, 'build', 'index.html'));
+  res.sendFile(path.join(srcPath, '../build/index.html'));
 });
 
 app.use('/.netlify/functions/server', router);
