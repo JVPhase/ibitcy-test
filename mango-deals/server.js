@@ -1,4 +1,5 @@
 import express from 'express';
+import serverless from 'serverless-http';
 import { Low, JSONFile } from 'lowdb';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
@@ -54,6 +55,5 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(srcPath, 'build', 'index.html'));
 });
 
-var listener = app.listen(8080, function () {
-  console.log('Listening on port ' + listener.address().port);
-});
+module.exports = app;
+module.exports.handler = serverless(app);
