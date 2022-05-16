@@ -61,18 +61,6 @@ function Chart(props: ChartProps) {
     let touchStart = 0;
     let hoverEl = -1;
     let offsetX = 0;
-    const normalizeTouchEvent = (event: any) => {
-      // if (!event.touches) {
-      //   event.touches = event.originalEvent.touches;
-      // }
-      // if (!event.pageX) {
-      //   event.pageX = event.originalEvent.pageX;
-      // }
-      // if (!event.pageY) {
-      //   event.pageY = event.originalEvent.pageY;
-      // }
-      return event;
-    };
     if (chartRef.current) {
       setCtx(chartRef.current.getContext('2d'));
     }
@@ -84,9 +72,16 @@ function Chart(props: ChartProps) {
       });
       chartRef.current?.addEventListener('mousedown', () => (drag = true));
       chartRef.current?.addEventListener('touchstart', (e) => {
-        e = normalizeTouchEvent(e);
         e.preventDefault();
-        touchStart = e.touches[0].pageX;
+        if (e.touches && e.touches.length) {
+          touchStart = e.touches[0].pageX;
+        }
+        if (e.changedTouches && e.changedTouches.length) {
+          touchStart = e.touches[0].pageX;
+        }
+        if (e.targetTouches && e.targetTouches.length) {
+          touchStart = e.touches[0].pageX;
+        }
         drag = true;
       });
       chartRef.current?.addEventListener('mouseup', () => (drag = false));
@@ -96,13 +91,21 @@ function Chart(props: ChartProps) {
         hoverEl = -1;
       });
       const dragMove = (e: any) => {
-        e = normalizeTouchEvent(e);
         e.preventDefault();
-        if (e.type === 'touchmove') {
+        if (e.touches && e.touches.length) {
           e.movementX = e.touches[0].pageX - touchStart;
           e.pageX = e.touches[0].pageX;
           touchStart = e.touches[0].pageX;
+        } else if (e.changedTouches && e.changedTouches.length) {
+          e.movementX = e.changedTouches[0].pageX - touchStart;
+          e.pageX = e.changedTouches[0].pageX;
+          touchStart = e.changedTouches[0].pageX;
+        } else if (e.targetTouches && e.targetTouches.length) {
+          e.movementX = e.targetTouches[0].pageX - touchStart;
+          e.pageX = e.targetTouches[0].pageX;
+          touchStart = e.targetTouches[0].pageX;
         }
+
         if (drag) {
           setOffsetXData(offsetX + e.movementX);
           offsetX += e.movementX;
