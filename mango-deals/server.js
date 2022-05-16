@@ -10,7 +10,8 @@ const file = join(__dirname, 'db.json');
 const adapter = new JSONFile(file);
 const db = new Low(adapter);
 await db.read();
-let app = express();
+const app = express();
+const router = express.Router();
 const srcPath = __dirname;
 app.use(express.static(path.join(srcPath, 'build')));
 let urlencodedParser = bodyParser.urlencoded({ extended: true });
@@ -28,19 +29,19 @@ defaultDeals.forEach((deal) => {
   db.write();
 });
 
-app.get('/deals/:page', (req, res) => {
+router.get('/deals/:page', (req, res) => {
   const deals = [...db.data.deals].reverse();
   const filtered = deals.splice(req.params.page * 10, 10);
   res.send(filtered);
 });
 
-app.post('/new', urlencodedParser, (req, res) => {
+router.post('/new', urlencodedParser, (req, res) => {
   db.data.deals.push(req.body);
   db.write();
   res.sendStatus(200);
 });
 
-app.delete('/delete/:id', urlencodedParser, (req, res) => {
+router.delete('/delete/:id', urlencodedParser, (req, res) => {
   for (let i = 0; i < db.data.deals.length; i++) {
     if (db.data.deals[i].id === +req.params.id) {
       db.data.deals.splice(i, 1);
@@ -51,8 +52,10 @@ app.delete('/delete/:id', urlencodedParser, (req, res) => {
   res.sendStatus(200);
 });
 
-app.get('/', (req, res) => {
+router.get('/', (req, res) => {
   res.sendFile(path.join(srcPath, 'build', 'index.html'));
 });
+
+app.use('/.netlify/functions/server', router);
 
 export const handler = serverless(app);
