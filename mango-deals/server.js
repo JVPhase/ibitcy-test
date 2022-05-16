@@ -54,8 +54,6 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(srcPath, 'build', 'index.html'));
 });
 
-// const listener = app.listen(8080, function () {
-//   console.log('Listening on port ' + listener.address().port);
-// });
-
-export default app;
+const listener = app.listen(8080, function () {
+  console.log('Listening on port ' + listener.address().port);
+});
