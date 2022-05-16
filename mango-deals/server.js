@@ -55,5 +55,5 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(srcPath, 'build', 'index.html'));
 });
 
-module.exports = app;
-module.exports.handler = serverless(app);
+export default app;
+export const handler = serverless(app);
